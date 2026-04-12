@@ -44,7 +44,22 @@ const initializeSocket = (server) => {
 
       console.log(`${username} joined room: ${roomName}`);
     });
+// Handle typing indicator
+socket.on('typing:start', () => {
+  if (!socket.currentRoom) return;
+  socket.to(socket.currentRoom).emit('typing:update', {
+    username: socket.username,
+    isTyping: true
+  });
+});
 
+socket.on('typing:stop', () => {
+  if (!socket.currentRoom) return;
+  socket.to(socket.currentRoom).emit('typing:update', {
+    username: socket.username,
+    isTyping: false
+  });
+});
     socket.on('message:send', (data) => {
       const { content } = data;
       const roomName = socket.currentRoom;
