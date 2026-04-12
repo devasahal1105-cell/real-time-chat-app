@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const initializeSocket = require('./config/socket');
 const healthRoute = require('./routes/health');
-const { router: messagesRoute } = require('./routes/messages');
+const { router: roomsRoute } = require('./routes/rooms');
 const logger = require('./middleware/logger');
 
 // Initialize express app
@@ -22,7 +22,7 @@ app.use(express.json());
 
 // Routes
 app.use('/', healthRoute);
-app.use('/', messagesRoute);
+app.use('/', roomsRoute);
 
 // Start server
 const PORT = process.env.PORT || 5000;

@@ -8,31 +8,63 @@
 </head>
 <body>
 
-  <div class="chat-container">
-
-    <!-- Header -->
-    <div class="chat-header">
+  <!-- Login Screen -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-box">
       <h1>💬 Real-Time Chat</h1>
-      <span id="status">Connecting...</span>
-    </div>
-
-    <!-- Messages Area -->
-    <div class="messages-area" id="messagesArea">
-    </div>
-
-    <!-- Input Area -->
-    <div class="input-area">
+      <p>Enter your name and a room to join</p>
       <input 
         type="text" 
-        id="messageInput" 
-        placeholder="Type a message..."
+        id="usernameInput" 
+        placeholder="Your name..."
+        maxlength="20"
       />
-      <button id="sendButton">Send</button>
+      <input 
+        type="text" 
+        id="roomInput" 
+        placeholder="Room name (e.g. General)..."
+        maxlength="20"
+      />
+      <button id="joinButton">Join Room</button>
     </div>
-
   </div>
 
-  <!-- Socket.io client library -->
+  <!-- Chat Screen -->
+  <div class="chat-screen" id="chatScreen" style="display:none;">
+    <div class="chat-container">
+
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <h3>💬 Chat App</h3>
+        </div>
+        <div class="room-info">
+          <p>Room: <span id="currentRoom">-</span></p>
+          <p>Online: <span id="onlineCount">0</span></p>
+        </div>
+        <div class="users-list" id="usersList"></div>
+      </div>
+
+      <!-- Main Chat -->
+      <div class="main-chat">
+        <div class="chat-header">
+          <h2 id="roomTitle">Room</h2>
+          <span id="status">Connecting...</span>
+        </div>
+        <div class="messages-area" id="messagesArea"></div>
+        <div class="input-area">
+          <input 
+            type="text" 
+            id="messageInput" 
+            placeholder="Type a message..."
+          />
+          <button id="sendButton">Send</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script src="app.js"></script>
 
