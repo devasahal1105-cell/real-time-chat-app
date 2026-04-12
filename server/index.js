@@ -3,10 +3,14 @@ const http = require('http');
 const cors = require('cors');
 require('dotenv').config();
 
+const connectDB = require('./config/db');
 const initializeSocket = require('./config/socket');
 const healthRoute = require('./routes/health');
 const { router: roomsRoute } = require('./routes/rooms');
 const logger = require('./middleware/logger');
+
+// Connect to MongoDB
+connectDB();
 
 // Initialize express app
 const app = express();

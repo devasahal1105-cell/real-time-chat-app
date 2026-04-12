@@ -1,5 +1,6 @@
 const socketio = require('socket.io');
-const { rooms, getOrCreateRoom } = require('../routes/rooms');
+const Message = require('../models/Message');
+const { getOrCreateRoom } = require('../routes/rooms');
 
 const initializeSocket = (server) => {
   const io = socketio(server, {
@@ -13,11 +14,12 @@ const initializeSocket = (server) => {
   io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
 
-    socket.on('room:join', (data) => {
+    socket.on('room:join', async (data) => {
       const { username, roomName } = data;
 
       if (socket.currentRoom) {
         socket.leave(socket.currentRoom);
+        const { rooms } = require('../routes/rooms');
         const prevRoom = rooms.get(socket.currentRoom);
         if (prevRoom) {
           prevRoom.users.delete(socket.id);
@@ -34,7 +36,19 @@ const initializeSocket = (server) => {
       socket.username = username;
       room.users.set(socket.id, username);
 
-      socket.emit('message:history', room.messages);
+      // Fetch last 50 messages from MongoDB
+      try {
+        const messages = await Message.find({ room: roomName })
+          .sort({ timestamp: -1 })
+          .limit(50)
+          .lean();
+
+        socket.emit('message:history', messages.reverse());
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+        socket.emit('message:history', []);
+      }
+
       socket.emit('room:users', Array.from(room.users.values()));
 
       io.to(roomName).emit('room:userJoined', {
@@ -45,29 +59,56 @@ const initializeSocket = (server) => {
       console.log(`${username} joined room: ${roomName}`);
     });
 
-    socket.on('message:send', (data) => {
+    // Typing indicators
+    socket.on('typing:start', () => {
+      if (!socket.currentRoom) return;
+      socket.to(socket.currentRoom).emit('typing:update', {
+        username: socket.username,
+        isTyping: true
+      });
+    });
+
+    socket.on('typing:stop', () => {
+      if (!socket.currentRoom) return;
+      socket.to(socket.currentRoom).emit('typing:update', {
+        username: socket.username,
+        isTyping: false
+      });
+    });
+
+    // Handle new messages
+    socket.on('message:send', async (data) => {
       const { content } = data;
       const roomName = socket.currentRoom;
       if (!roomName) return;
 
-      const room = rooms.get(roomName);
-      if (!room) return;
+      try {
+        // Save to MongoDB
+        const message = await Message.create({
+          sender: socket.username,
+          content,
+          room: roomName,
+          timestamp: new Date()
+        });
 
-      const message = {
-        id: Date.now(),
-        sender: socket.username,
-        content,
-        timestamp: new Date().toISOString(),
-        room: roomName
-      };
+        // Broadcast to room
+        io.to(roomName).emit('message:receive', {
+          id: message._id,
+          sender: message.sender,
+          content: message.content,
+          room: message.room,
+          timestamp: message.timestamp
+        });
 
-      room.messages.push(message);
-      io.to(roomName).emit('message:receive', message);
-      console.log(`[${roomName}] ${socket.username}: ${content}`);
+        console.log(`[${roomName}] ${socket.username}: ${content}`);
+      } catch (error) {
+        console.error('Error saving message:', error);
+      }
     });
 
     socket.on('disconnect', () => {
       if (socket.currentRoom) {
+        const { rooms } = require('../routes/rooms');
         const room = rooms.get(socket.currentRoom);
         if (room) {
           room.users.delete(socket.id);

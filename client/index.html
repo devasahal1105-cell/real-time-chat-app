@@ -11,21 +11,28 @@
   <!-- Login Screen -->
   <div class="login-screen" id="loginScreen">
     <div class="login-box">
-      <h1>💬 Real-Time Chat</h1>
-      <p>Enter your name and a room to join</p>
-      <input 
-        type="text" 
-        id="usernameInput" 
-        placeholder="Your name..."
-        maxlength="20"
-      />
-      <input 
-        type="text" 
-        id="roomInput" 
-        placeholder="Room name (e.g. General)..."
-        maxlength="20"
-      />
-      <button id="joinButton">Join Room</button>
+      <div class="login-logo">💬</div>
+      <h1>Welcome Back</h1>
+      <p>Enter your details to start chatting</p>
+      <div class="input-group">
+        <label>Your Name</label>
+        <input 
+          type="text" 
+          id="usernameInput" 
+          placeholder="e.g. Vradant"
+          maxlength="20"
+        />
+      </div>
+      <div class="input-group">
+        <label>Room Name</label>
+        <input 
+          type="text" 
+          id="roomInput" 
+          placeholder="e.g. General, Gaming, Random"
+          maxlength="20"
+        />
+      </div>
+      <button id="joinButton">Join Room →</button>
     </div>
   </div>
 
@@ -36,32 +43,56 @@
       <!-- Sidebar -->
       <div class="sidebar">
         <div class="sidebar-header">
-          <h3>💬 Chat App</h3>
+          <div class="app-logo">💬</div>
+          <h3>Chat App</h3>
         </div>
         <div class="room-info">
-          <p>Room: <span id="currentRoom">-</span></p>
-          <p>Online: <span id="onlineCount">0</span></p>
+          <div class="room-badge">
+            <span># </span><span id="currentRoom">-</span>
+          </div>
+          <div class="online-badge">
+            🟢 <span id="onlineCount">0</span> online
+          </div>
         </div>
-        <div class="users-list" id="usersList"></div>
+        <div class="sidebar-section">
+          <p class="section-title">MEMBERS</p>
+          <div class="users-list" id="usersList"></div>
+        </div>
       </div>
 
       <!-- Main Chat -->
       <div class="main-chat">
+
+        <!-- Header -->
         <div class="chat-header">
-          <h2 id="roomTitle">Room</h2>
-          <span id="status">Connecting...</span>
+          <div class="header-left">
+            <h2 id="roomTitle">Room</h2>
+            <p class="header-subtitle">Real-time chat room</p>
+          </div>
+          <div class="header-right">
+            <span id="status" class="status-badge">Connecting...</span>
+          </div>
         </div>
+
+        <!-- Messages -->
         <div class="messages-area" id="messagesArea"></div>
+
+        <!-- Typing Indicator -->
+        <div class="typing-indicator" id="typingIndicator"></div>
+
+        <!-- Input -->
         <div class="input-area">
           <input 
             type="text" 
             id="messageInput" 
             placeholder="Type a message..."
           />
-          <button id="sendButton">Send</button>
+          <button id="sendButton">
+            <span>Send</span>
+          </button>
         </div>
-      </div>
 
+      </div>
     </div>
   </div>
 
