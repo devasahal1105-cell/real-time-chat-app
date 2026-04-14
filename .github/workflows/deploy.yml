@@ -1,0 +1,36 @@
+name: Deploy Chat App
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          cd server
+          npm install
+
+      - name: Run security audit
+        run: |
+          cd server
+          npm audit --audit-level=high || true
+
+      - name: Check for secrets in code
+        run: |
+          if grep -r "password123\|secret123" ./server --include="*.js"; then
+            echo "Hardcoded secrets found!"
+            exit 1
+          fi
+          echo "No hardcoded secrets found ✅"
