@@ -1,12 +1,14 @@
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const connectDB = require('./config/db');
 const initializeSocket = require('./config/socket');
 const healthRoute = require('./routes/health');
 const { router: roomsRoute } = require('./routes/rooms');
+const authRoute = require('./routes/auth');
 const logger = require('./middleware/logger');
 
 // Connect to MongoDB
@@ -20,13 +22,18 @@ const server = http.createServer(app);
 const io = initializeSocket(server);
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://127.0.0.1:5500',
+  credentials: true
+}));
 app.use(logger);
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
 app.use('/', healthRoute);
 app.use('/', roomsRoute);
+app.use('/', authRoute);
 
 // Start server
 const PORT = process.env.PORT || 5000;
