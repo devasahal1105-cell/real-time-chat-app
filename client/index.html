@@ -3,54 +3,79 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChatApp – Real-Time Messaging</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>Real-Time Chat App</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Login Screen -->
-  <div class="login-screen" id="loginScreen" role="main">
-    <div class="login-box">
-      <div class="login-logo">💬</div>
-      <h1>Welcome Back</h1>
-      <p>Enter your details to start chatting</p>
-      <div class="input-group">
-        <label for="usernameInput">Your Name</label>
-        <input 
-          type="text" 
-          id="usernameInput" 
-          placeholder="e.g. Vradant"
-          maxlength="20"
-          autocomplete="off"
-          aria-label="Enter your name"
-        />
+  <!-- Auth Screen -->
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-box">
+      <div class="auth-logo">💬</div>
+      <h1>Real-Time Chat</h1>
+
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button class="tab-btn active" id="loginTab">Login</button>
+        <button class="tab-btn" id="registerTab">Register</button>
       </div>
-      <div class="input-group">
-        <label for="roomInput">Room Name</label>
-        <input 
-          type="text" 
-          id="roomInput" 
-          placeholder="e.g. General, Gaming, Random"
-          maxlength="20"
-          autocomplete="off"
-          aria-label="Enter room name"
-        />
+
+      <!-- Error Message -->
+      <div class="auth-error" id="authError"></div>
+
+      <!-- Login Form -->
+      <div class="auth-form" id="loginForm">
+        <div class="input-group">
+          <label>Username</label>
+          <input type="text" id="loginUsername" placeholder="Enter username"/>
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter password"/>
+        </div>
+        <button class="auth-btn" id="loginBtn">Login →</button>
       </div>
-      <button id="joinButton" aria-label="Join room">Join Room →</button>
+
+      <!-- Register Form -->
+      <div class="auth-form" id="registerForm" style="display:none;">
+        <div class="input-group">
+          <label>Username</label>
+          <input type="text" id="registerUsername" placeholder="Choose username"/>
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" id="registerPassword" placeholder="Min 6 characters"/>
+        </div>
+        <button class="auth-btn" id="registerBtn">Create Account →</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Room Screen -->
+  <div class="room-screen" id="roomScreen" style="display:none;">
+    <div class="room-box">
+      <div class="auth-logo">💬</div>
+      <h2>Welcome, <span id="welcomeName"></span>!</h2>
+      <p>Enter a room to start chatting</p>
+      <div class="input-group">
+        <label>Room Name</label>
+        <input type="text" id="roomInput" placeholder="e.g. General, Gaming, Random"/>
+      </div>
+      <button class="auth-btn" id="joinRoomBtn">Join Room →</button>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
     </div>
   </div>
 
   <!-- Chat Screen -->
-  <div class="chat-screen" id="chatScreen" style="display:none;" role="main">
+  <div class="chat-screen" id="chatScreen" style="display:none;">
     <div class="chat-container">
 
       <!-- Sidebar -->
-      <div class="sidebar" id="sidebar" role="navigation" aria-label="Chat sidebar">
+      <div class="sidebar">
         <div class="sidebar-header">
           <div class="app-logo">💬</div>
-          <h3>ChatApp</h3>
+          <h3>Chat App</h3>
         </div>
         <div class="room-info">
           <div class="room-badge">
@@ -62,61 +87,34 @@
         </div>
         <div class="sidebar-section">
           <p class="section-title">MEMBERS</p>
-          <div class="users-list" id="usersList" role="list" aria-label="Online members"></div>
+          <div class="users-list" id="usersList"></div>
+        </div>
+        <div class="sidebar-footer">
+          <div class="current-user" id="currentUser"></div>
+          <button class="logout-btn-small" id="chatLogoutBtn">Logout</button>
         </div>
       </div>
 
       <!-- Main Chat -->
       <div class="main-chat">
-
-        <!-- Header -->
         <div class="chat-header">
           <div class="header-left">
-            <!-- Mobile: sidebar toggle -->
-            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
             <h2 id="roomTitle">Room</h2>
             <p class="header-subtitle">Real-time chat room</p>
           </div>
           <div class="header-right">
-            <span id="status" class="status-badge" role="status">Connecting...</span>
+            <span id="status" class="status-badge">Connecting...</span>
           </div>
         </div>
-
-        <!-- Messages -->
-        <div 
-          class="messages-area" 
-          id="messagesArea" 
-          role="log" 
-          aria-live="polite" 
-          aria-label="Chat messages"
-        ></div>
-
-        <!-- Typing Indicator -->
-        <div class="typing-indicator" id="typingIndicator" aria-live="polite" aria-label="Typing status"></div>
-
-        <!-- Input -->
-        <div class="input-area" role="region" aria-label="Message input">
-          <input 
-            type="text" 
-            id="messageInput" 
-            placeholder="Type a message..."
-            aria-label="Type a message"
-            autocomplete="off"
-            maxlength="500"
-          />
-          <button id="sendButton" aria-label="Send message" title="Send (Enter)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13"></line>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-            </svg>
-          </button>
+        <div class="messages-area" id="messagesArea"></div>
+        <div class="typing-indicator" id="typingIndicator"></div>
+        <div class="input-area">
+          <input type="text" id="messageInput" placeholder="Type a message..."/>
+          <button id="sendButton">Send</button>
         </div>
-
       </div>
-    </div>
 
-    <!-- Mobile sidebar overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    </div>
   </div>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>

@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 const socketio = require('socket.io');
 const Message = require('../models/Message');
 const { getOrCreateRoom } = require('../routes/rooms');
@@ -11,11 +13,34 @@ const initializeSocket = (server) => {
     }
   });
 
+  // Verify JWT on socket connection
+  io.use(async (socket, next) => {
+    try {
+      const token = socket.handshake.auth.token;
+      if (!token) {
+        return next(new Error('Authentication required'));
+      }
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.userId).select('-password');
+
+      if (!user) {
+        return next(new Error('User not found'));
+      }
+
+      socket.user = user;
+      next();
+    } catch (error) {
+      next(new Error('Invalid token'));
+    }
+  });
+
   io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
 
     socket.on('room:join', async (data) => {
-      const { username, roomName } = data;
+      const { roomName } = data;
+      const username = socket.user.username;
 
       if (socket.currentRoom) {
         socket.leave(socket.currentRoom);
@@ -83,7 +108,6 @@ const initializeSocket = (server) => {
       if (!roomName) return;
 
       try {
-        // Save to MongoDB
         const message = await Message.create({
           sender: socket.username,
           content,
@@ -91,7 +115,6 @@ const initializeSocket = (server) => {
           timestamp: new Date()
         });
 
-        // Broadcast to room
         io.to(roomName).emit('message:receive', {
           id: message._id,
           sender: message.sender,
